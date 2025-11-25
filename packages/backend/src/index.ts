@@ -93,7 +93,8 @@ app.get('/api/resources', (req: Request, res: Response) => {
 });
 
 app.get('/api/resources/:id', (req: Request, res: Response) => {
-  const resource = getResourceById(req.params.id);
+  const resourceId = req.params.id ?? '';
+  const resource = getResourceById(resourceId);
   
   if (!resource) {
     res.status(404).json({
@@ -104,7 +105,7 @@ app.get('/api/resources/:id', (req: Request, res: Response) => {
   }
   
   // Add current position from simulation
-  const position = getResourcePosition(req.params.id);
+  const position = getResourcePosition(resourceId);
   const resourceWithPosition = {
     ...resource,
     currentPosition: position ?? resource.currentPosition,
@@ -117,7 +118,8 @@ app.get('/api/resources/:id', (req: Request, res: Response) => {
 });
 
 app.get('/api/resources/:id/position', (req: Request, res: Response) => {
-  const position = getResourcePosition(req.params.id);
+  const resourceId = req.params.id ?? '';
+  const position = getResourcePosition(resourceId);
   
   if (!position) {
     res.status(404).json({
@@ -181,7 +183,8 @@ app.get('/api/jobs', (req: Request, res: Response) => {
 });
 
 app.get('/api/jobs/:id', (req: Request, res: Response) => {
-  const job = getJobById(req.params.id);
+  const jobId = req.params.id ?? '';
+  const job = getJobById(jobId);
   
   if (!job) {
     res.status(404).json({
@@ -230,7 +233,8 @@ app.post('/api/jobs', (req: Request, res: Response) => {
 });
 
 app.patch('/api/jobs/:id/status', (req: Request, res: Response) => {
-  const job = getJobById(req.params.id);
+  const jobId = req.params.id ?? '';
+  const job = getJobById(jobId);
   
   if (!job) {
     res.status(404).json({
@@ -287,7 +291,8 @@ app.get('/api/sites', (req: Request, res: Response) => {
 });
 
 app.get('/api/sites/:id', (req: Request, res: Response) => {
-  const site = getSiteById(req.params.id);
+  const siteId = req.params.id ?? '';
+  const site = getSiteById(siteId);
   
   if (!site) {
     res.status(404).json({
@@ -445,7 +450,7 @@ function broadcastEvent(event: WebSocketEvent): void {
 // ============================================
 
 // Initialize simulation on startup
-initializeSimulation();
+initializeSimulation().catch(console.error);
 
 // Update simulation every 2 seconds
 setInterval(() => {

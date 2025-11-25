@@ -5,8 +5,16 @@
 
 import type { Resource, GeoPosition, Coordinates } from '@sylon/shared';
 import { DEMO_GARAGE, DEMO_QUARRY_NORTH, DEMO_QUARRY_SOUTH, PLOW_ROUTES, PROJECT_AREAS, calculateDistance, interpolatePosition, calculateBearing } from '@sylon/shared';
-import { allResources } from '../data/resources.js';
-import { allJobs } from '../data/jobs.js';
+
+// Lazy import to avoid circular dependency
+let resourcesData: { allResources: Resource[] } | null = null;
+
+async function getResources(): Promise<Resource[]> {
+  if (!resourcesData) {
+    resourcesData = await import('../../data/resources.js');
+  }
+  return resourcesData.allResources;
+}
 
 interface SimulationState {
   resourceId: string;
@@ -23,8 +31,9 @@ interface SimulationState {
 const simulationStates: Map<string, SimulationState> = new Map();
 
 // Initialize simulation states for all resources
-export function initializeSimulation(): void {
-  allResources.forEach(resource => {
+export async function initializeSimulation(): Promise<void> {
+  const resources = await getResources();
+  resources.forEach((resource: Resource) => {
     const state = createInitialState(resource);
     simulationStates.set(resource.id, state);
   });

@@ -1,0 +1,246 @@
+/**
+ * SYLON Admin UI - Sites Styles
+ */
+
+.sites-view {
+  height: 100%;
+}
+
+.sites-content {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: var(--spacing-lg);
+  height: 100%;
+}
+
+@media (max-width: 1200px) {
+  .sites-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sites list */
+.sites-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+/* Site card */
+.site-card {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.site-card-selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.site-card-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.site-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.site-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: 2px;
+}
+
+.site-name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+.site-type {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.site-address {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.site-materials {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.site-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Site detail panel */
+.site-detail-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-detail-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.site-detail-empty {
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: var(--text-muted);
+  padding: var(--spacing-2xl);
+}
+
+.site-detail-map {
+  height: 200px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.site-detail-content {
+  flex: 1;
+  padding: var(--spacing-md);
+  overflow-y: auto;
+}
+
+.detail-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.detail-section h5 {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.detail-section p {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.coords {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.hours-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.contact-info p {
+  margin-bottom: 4px;
+}
+
+.contact-info strong {
+  font-weight: 600;
+}
+
+/* Materials list */
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.material-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius);
+}
+
+.material-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.material-name {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.material-code {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.material-stock {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.stock-value {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* Restrictions list */
+.restrictions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.restrictions-list li {
+  padding: var(--spacing-xs) 0;
+  padding-left: var(--spacing-md);
+  position: relative;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.restrictions-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-warning);
+}
