@@ -1,0 +1,30 @@
+{
+  "name": "sylon",
+  "version": "3.0.0",
+  "private": true,
+  "description": "SYLON - Modern platform for real-time logistics, construction management and resource control",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "backend:dev": "npm run dev --workspace=@sylon/backend",
+    "admin:dev": "npm run dev --workspace=@sylon/admin-ui",
+    "field:dev": "npm run dev --workspace=@sylon/field-app"
+  },
+  "keywords": [
+    "logistics",
+    "construction",
+    "fleet-management",
+    "gps-tracking",
+    "real-time"
+  ],
+  "author": "SYLON Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
