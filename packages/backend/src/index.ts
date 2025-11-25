@@ -1,0 +1,522 @@
+/**
+ * SYLON Backend - Main Server
+ * Express.js API with WebSocket support for real-time updates
+ */
+
+import express, { type Request, type Response, type NextFunction } from 'express';
+import cors from 'cors';
+import { createServer } from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
+import { v4 as uuidv4 } from 'uuid';
+
+import type { ApiResponse, WebSocketEvent, Resource, Job, Site, GeoPosition } from '@sylon/shared';
+import { DEMO_COMPANY } from '@sylon/shared';
+
+import { allResources, getResourceById, getResourcesByType } from './data/resources.js';
+import { allSites, getSiteById, getSitesByType } from './data/sites.js';
+import { allJobs, getJobById, getJobsByStatus, getJobsByResource } from './data/jobs.js';
+import { initializeSimulation, updateSimulation, getAllPositions, getResourcePosition } from './modules/gps/simulation.js';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Request logging
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  next();
+});
+
+// ============================================
+// HEALTH & INFO ENDPOINTS
+// ============================================
+
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '3.0.0',
+    },
+  } satisfies ApiResponse<unknown>);
+});
+
+app.get('/api/info', (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: {
+      name: 'SYLON API',
+      version: '3.0.0',
+      company: DEMO_COMPANY,
+      modules: ['works', 'logistics', 'sites', 'garage', 'field-app'],
+    },
+  } satisfies ApiResponse<unknown>);
+});
+
+// ============================================
+// RESOURCES ENDPOINTS
+// ============================================
+
+app.get('/api/resources', (req: Request, res: Response) => {
+  let resources = [...allResources];
+  
+  // Filter by type
+  const type = req.query.type as string | undefined;
+  if (type) {
+    resources = resources.filter(r => r.type === type);
+  }
+  
+  // Filter by status
+  const status = req.query.status as string | undefined;
+  if (status) {
+    resources = resources.filter(r => r.status === status);
+  }
+  
+  // Add current positions from simulation
+  const positions = getAllPositions();
+  resources = resources.map(r => ({
+    ...r,
+    currentPosition: positions.get(r.id) ?? r.currentPosition,
+  }));
+  
+  res.json({
+    success: true,
+    data: resources,
+    meta: {
+      total: resources.length,
+    },
+  } satisfies ApiResponse<Resource[]>);
+});
+
+app.get('/api/resources/:id', (req: Request, res: Response) => {
+  const resource = getResourceById(req.params.id);
+  
+  if (!resource) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Resource not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  // Add current position from simulation
+  const position = getResourcePosition(req.params.id);
+  const resourceWithPosition = {
+    ...resource,
+    currentPosition: position ?? resource.currentPosition,
+  };
+  
+  res.json({
+    success: true,
+    data: resourceWithPosition,
+  } satisfies ApiResponse<Resource>);
+});
+
+app.get('/api/resources/:id/position', (req: Request, res: Response) => {
+  const position = getResourcePosition(req.params.id);
+  
+  if (!position) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Resource position not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: position,
+  } satisfies ApiResponse<GeoPosition>);
+});
+
+app.get('/api/resources/positions', (_req: Request, res: Response) => {
+  const positions = getAllPositions();
+  const positionsArray = Array.from(positions.entries()).map(([resourceId, position]) => ({
+    resourceId,
+    ...position,
+  }));
+  
+  res.json({
+    success: true,
+    data: positionsArray,
+  } satisfies ApiResponse<unknown>);
+});
+
+// ============================================
+// JOBS/WORKS ENDPOINTS
+// ============================================
+
+app.get('/api/jobs', (req: Request, res: Response) => {
+  let jobs = [...allJobs];
+  
+  // Filter by status
+  const status = req.query.status as string | undefined;
+  if (status) {
+    jobs = jobs.filter(j => j.status === status);
+  }
+  
+  // Filter by type
+  const type = req.query.type as string | undefined;
+  if (type) {
+    jobs = jobs.filter(j => j.type === type);
+  }
+  
+  // Filter by resource
+  const resourceId = req.query.resourceId as string | undefined;
+  if (resourceId) {
+    jobs = jobs.filter(j => j.assignedResources.some(r => r.resourceId === resourceId));
+  }
+  
+  res.json({
+    success: true,
+    data: jobs,
+    meta: {
+      total: jobs.length,
+    },
+  } satisfies ApiResponse<Job[]>);
+});
+
+app.get('/api/jobs/:id', (req: Request, res: Response) => {
+  const job = getJobById(req.params.id);
+  
+  if (!job) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Job not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: job,
+  } satisfies ApiResponse<Job>);
+});
+
+app.post('/api/jobs', (req: Request, res: Response) => {
+  const newJob: Job = {
+    id: `job-${uuidv4()}`,
+    companyId: DEMO_COMPANY.id,
+    jobNumber: `JOB-${Date.now()}`,
+    ...req.body,
+    status: 'scheduled',
+    timeEntries: [],
+    photos: [],
+    deviations: [],
+    notes: [],
+    invoiceStatus: 'pending',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: 'api',
+    updatedBy: 'api',
+  };
+  
+  allJobs.push(newJob);
+  
+  // Broadcast to WebSocket clients
+  broadcastEvent({
+    type: 'JOB_STATUS_CHANGE',
+    data: { jobId: newJob.id, status: 'scheduled' },
+  });
+  
+  res.status(201).json({
+    success: true,
+    data: newJob,
+  } satisfies ApiResponse<Job>);
+});
+
+app.patch('/api/jobs/:id/status', (req: Request, res: Response) => {
+  const job = getJobById(req.params.id);
+  
+  if (!job) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Job not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  const { status } = req.body;
+  if (status) {
+    job.status = status;
+    job.updatedAt = new Date();
+    
+    // Broadcast to WebSocket clients
+    broadcastEvent({
+      type: 'JOB_STATUS_CHANGE',
+      data: { jobId: job.id, status },
+    });
+  }
+  
+  res.json({
+    success: true,
+    data: job,
+  } satisfies ApiResponse<Job>);
+});
+
+// ============================================
+// SITES ENDPOINTS
+// ============================================
+
+app.get('/api/sites', (req: Request, res: Response) => {
+  let sites = [...allSites];
+  
+  // Filter by type
+  const type = req.query.type as string | undefined;
+  if (type) {
+    sites = sites.filter(s => s.type === type);
+  }
+  
+  // Filter by status
+  const status = req.query.status as string | undefined;
+  if (status) {
+    sites = sites.filter(s => s.status === status);
+  }
+  
+  res.json({
+    success: true,
+    data: sites,
+    meta: {
+      total: sites.length,
+    },
+  } satisfies ApiResponse<Site[]>);
+});
+
+app.get('/api/sites/:id', (req: Request, res: Response) => {
+  const site = getSiteById(req.params.id);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: site,
+  } satisfies ApiResponse<Site>);
+});
+
+// ============================================
+// DASHBOARD ENDPOINTS
+// ============================================
+
+app.get('/api/dashboard', (_req: Request, res: Response) => {
+  const positions = getAllPositions();
+  
+  const activeResources = allResources.filter(r => 
+    r.status === 'on_job' || r.status === 'en_route'
+  ).length;
+  
+  const activeJobs = allJobs.filter(j => 
+    j.status === 'in_progress' || j.status === 'assigned'
+  ).length;
+  
+  const completedToday = allJobs.filter(j => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return j.status === 'completed' && j.updatedAt >= today;
+  }).length;
+  
+  const dashboard = {
+    resourcesTotal: allResources.length,
+    resourcesActive: activeResources,
+    resourcesIdle: allResources.length - activeResources,
+    activeJobs,
+    completedToday,
+    totalSites: allSites.length,
+    upcomingJobs: allJobs.filter(j => j.status === 'scheduled').slice(0, 5),
+    recentActivity: allJobs
+      .filter(j => j.status === 'in_progress')
+      .map(j => ({
+        id: j.id,
+        type: 'job_in_progress' as const,
+        description: j.title,
+        timestamp: j.updatedAt,
+        jobId: j.id,
+      }))
+      .slice(0, 10),
+    resourcePositions: Array.from(positions.entries()).map(([id, pos]) => ({
+      resourceId: id,
+      resource: getResourceById(id),
+      position: pos,
+    })),
+  };
+  
+  res.json({
+    success: true,
+    data: dashboard,
+  } satisfies ApiResponse<typeof dashboard>);
+});
+
+// ============================================
+// STATISTICS ENDPOINTS
+// ============================================
+
+app.get('/api/stats/resources', (_req: Request, res: Response) => {
+  const byType: Record<string, number> = {};
+  const byStatus: Record<string, number> = {};
+  
+  allResources.forEach(r => {
+    byType[r.type] = (byType[r.type] || 0) + 1;
+    byStatus[r.status] = (byStatus[r.status] || 0) + 1;
+  });
+  
+  res.json({
+    success: true,
+    data: {
+      total: allResources.length,
+      byType,
+      byStatus,
+    },
+  } satisfies ApiResponse<unknown>);
+});
+
+app.get('/api/stats/jobs', (_req: Request, res: Response) => {
+  const byType: Record<string, number> = {};
+  const byStatus: Record<string, number> = {};
+  
+  allJobs.forEach(j => {
+    byType[j.type] = (byType[j.type] || 0) + 1;
+    byStatus[j.status] = (byStatus[j.status] || 0) + 1;
+  });
+  
+  res.json({
+    success: true,
+    data: {
+      total: allJobs.length,
+      byType,
+      byStatus,
+    },
+  } satisfies ApiResponse<unknown>);
+});
+
+// ============================================
+// WEBSOCKET SERVER
+// ============================================
+
+const server = createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+const clients: Set<WebSocket> = new Set();
+
+wss.on('connection', (ws: WebSocket) => {
+  console.log('WebSocket client connected');
+  clients.add(ws);
+  
+  // Send initial positions
+  const positions = getAllPositions();
+  ws.send(JSON.stringify({
+    type: 'INITIAL_POSITIONS',
+    data: Array.from(positions.entries()).map(([id, pos]) => ({
+      resourceId: id,
+      position: pos,
+    })),
+  }));
+  
+  ws.on('close', () => {
+    console.log('WebSocket client disconnected');
+    clients.delete(ws);
+  });
+  
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+    clients.delete(ws);
+  });
+});
+
+function broadcastEvent(event: WebSocketEvent): void {
+  const message = JSON.stringify(event);
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
+// ============================================
+// GPS SIMULATION & BROADCAST
+// ============================================
+
+// Initialize simulation on startup
+initializeSimulation();
+
+// Update simulation every 2 seconds
+setInterval(() => {
+  const positions = updateSimulation();
+  
+  // Broadcast position updates to all connected clients
+  if (clients.size > 0) {
+    const positionUpdates = Array.from(positions.entries()).map(([resourceId, position]) => ({
+      resourceId,
+      position,
+    }));
+    
+    const message = JSON.stringify({
+      type: 'POSITION_UPDATE',
+      data: positionUpdates,
+    });
+    
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+}, 2000);
+
+// ============================================
+// ERROR HANDLING
+// ============================================
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('Server error:', err);
+  res.status(500).json({
+    success: false,
+    error: {
+      code: 'INTERNAL_ERROR',
+      message: 'An internal server error occurred',
+    },
+  } satisfies ApiResponse<never>);
+});
+
+// 404 handler
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    error: {
+      code: 'NOT_FOUND',
+      message: 'Endpoint not found',
+    },
+  } satisfies ApiResponse<never>);
+});
+
+// ============================================
+// START SERVER
+// ============================================
+
+server.listen(PORT, () => {
+  console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║                    SYLON API Server                       ║
+║                      Version 3.0.0                        ║
+╠═══════════════════════════════════════════════════════════╣
+║  REST API:     http://localhost:${PORT}/api                  ║
+║  WebSocket:    ws://localhost:${PORT}/ws                     ║
+║  Health:       http://localhost:${PORT}/api/health           ║
+╠═══════════════════════════════════════════════════════════╣
+║  Demo Company: ${DEMO_COMPANY.name}         ║
+║  Resources:    ${allResources.length} units                                    ║
+║  Sites:        ${allSites.length} locations                                   ║
+║  Jobs:         ${allJobs.length} active/scheduled                          ║
+╚═══════════════════════════════════════════════════════════╝
+  `);
+});
+
+export { app, server };
