@@ -50,7 +50,7 @@ const App: React.FC = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
   
   const { resources, loading: resourcesLoading } = useResources();
-  const { jobs, loading: jobsLoading, updateStatus } = useJobs();
+  const { jobs, loading: jobsLoading, updateStatus, createJob } = useJobs();
   const { sites, loading: sitesLoading } = useSites();
 
   const loading = resourcesLoading || jobsLoading || sitesLoading;
@@ -87,6 +87,8 @@ const App: React.FC = () => {
             jobs={jobs}
             resources={resources.map(r => r.resource)}
             onUpdateJobStatus={updateStatus}
+            onCreateJob={createJob}
+            sites={sites}
           />
         );
       case 'resources':

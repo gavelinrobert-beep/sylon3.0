@@ -145,6 +145,7 @@ export function useJobs(): {
   error: Error | null;
   refetch: () => Promise<void>;
   updateStatus: (jobId: string, status: string) => Promise<void>;
+  createJob: (jobData: Partial<Job>) => Promise<Job>;
 } {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,6 +179,12 @@ export function useJobs(): {
     }
   }, []);
 
+  const createJob = useCallback(async (jobData: Partial<Job>) => {
+    const newJob = await api.createJob(jobData) as Job;
+    setJobs(prev => [newJob, ...prev]);
+    return newJob;
+  }, []);
+
   // WebSocket updates
   useWebSocket((message) => {
     if (message.type === 'JOB_STATUS_CHANGE') {
@@ -188,7 +195,7 @@ export function useJobs(): {
     }
   });
 
-  return { jobs, loading, error, refetch: fetchJobs, updateStatus };
+  return { jobs, loading, error, refetch: fetchJobs, updateStatus, createJob };
 }
 
 // ============================================

@@ -18,13 +18,15 @@ import {
 } from 'lucide-react';
 import { Card, CardHeader, Badge, Button, Tabs } from '../ui';
 import { JOB_TYPE_LABELS, RESOURCE_TYPE_LABELS } from '@sylon/shared';
-import type { Job, Resource } from '@sylon/shared';
+import type { Job, Resource, Site } from '@sylon/shared';
+import { CreateJobModal } from './CreateJobModal';
 import './works.css';
 
 interface WorksViewProps {
   jobs: Job[];
   resources: Resource[];
-  onCreateJob?: () => void;
+  sites: Site[];
+  onCreateJob?: (jobData: Partial<Job>) => Promise<Job>;
   onUpdateJobStatus?: (jobId: string, status: string) => void;
 }
 
@@ -67,12 +69,14 @@ const PRIORITY_VARIANTS: Record<string, 'default' | 'warning' | 'danger'> = {
 export const WorksView: React.FC<WorksViewProps> = ({
   jobs,
   resources,
+  sites,
   onCreateJob,
   onUpdateJobStatus,
 }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const filteredJobs = jobs.filter(job => {
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
@@ -90,8 +94,21 @@ export const WorksView: React.FC<WorksViewProps> = ({
     ).filter((r): r is Resource => r !== undefined);
   };
 
+  const handleCreateJob = async (jobData: Partial<Job>) => {
+    if (onCreateJob) {
+      await onCreateJob(jobData);
+    }
+  };
+
   return (
     <div className="works-view">
+      <CreateJobModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateJob}
+        resources={resources.map(r => ({ id: r.id, name: r.name }))}
+        sites={sites.map(s => ({ id: s.id, name: s.name, coordinates: s.coordinates }))}
+      />
       {/* Toolbar */}
       <div className="works-toolbar">
         <div className="toolbar-left">
@@ -115,7 +132,7 @@ export const WorksView: React.FC<WorksViewProps> = ({
             variant="primary"
             size="md"
             icon={<Plus size={16} />}
-            onClick={onCreateJob}
+            onClick={() => setIsCreateModalOpen(true)}
           >
             Nytt uppdrag
           </Button>
@@ -132,7 +149,7 @@ export const WorksView: React.FC<WorksViewProps> = ({
                 <Calendar size={48} />
                 <h3>Inga uppdrag hittade</h3>
                 <p>Det finns inga uppdrag som matchar dina filter.</p>
-                <Button variant="primary" icon={<Plus size={16} />} onClick={onCreateJob}>
+                <Button variant="primary" icon={<Plus size={16} />} onClick={() => setIsCreateModalOpen(true)}>
                   Skapa nytt uppdrag
                 </Button>
               </div>
