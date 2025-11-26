@@ -73,7 +73,8 @@ const DAY_SUMMARY_KEY = 'sylon_day_summary';
 
 // Get today's date string
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]!;
+  const parts = new Date().toISOString().split('T');
+  return parts[0] ?? new Date().toLocaleDateString('sv-SE');
 }
 
 // Check if day has been started

@@ -635,9 +635,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           {loading ? 'Loggar in...' : 'Logga in'}
         </button>
         
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--spacing-md)' }}>
-          Demo: använd &quot;demo@sylon.se&quot; med valfritt lösenord
-        </p>
+        {import.meta.env.DEV && (
+          <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--spacing-md)' }}>
+            Demo: använd &quot;demo@sylon.se&quot;
+          </p>
+        )}
       </form>
     </div>
   );
