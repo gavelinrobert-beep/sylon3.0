@@ -9,7 +9,7 @@ import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { ApiResponse, WebSocketEvent, Resource, Job, Site, GeoPosition } from '@sylon/shared';
+import type { ApiResponse, WebSocketEvent, Resource, Job, Site, SiteMaterial, GeoPosition } from '@sylon/shared';
 import { DEMO_COMPANY } from '@sylon/shared';
 
 import { allResources, getResourceById, getResourcesByType } from './data/resources.js';
@@ -333,6 +333,21 @@ app.get('/api/sites/:id', (req: Request, res: Response) => {
   } satisfies ApiResponse<Site>);
 });
 
+// Allowed fields for site updates
+const ALLOWED_SITE_FIELDS = ['name', 'description', 'address', 'status', 'operatingHours', 'contact', 'accessInstructions', 'restrictions'];
+const ALLOWED_MATERIAL_FIELDS = ['name', 'code', 'category', 'fraction', 'description', 'unit', 'pricePerUnit', 'currentStock', 'minStock', 'maxStock', 'availability', 'qualityGrade', 'certifications'];
+
+// Simple validation helper to filter allowed fields
+function filterAllowedFields<T extends Record<string, unknown>>(data: T, allowedFields: string[]): Partial<T> {
+  const filtered: Partial<T> = {};
+  for (const key of allowedFields) {
+    if (key in data) {
+      filtered[key as keyof T] = data[key as keyof T];
+    }
+  }
+  return filtered;
+}
+
 app.patch('/api/sites/:id', (req: Request, res: Response) => {
   const siteId = req.params.id ?? '';
   const site = getSiteById(siteId);
@@ -345,7 +360,9 @@ app.patch('/api/sites/:id', (req: Request, res: Response) => {
     return;
   }
   
-  const updatedSite = updateSite(siteId, req.body);
+  // Filter only allowed fields for update
+  const filteredUpdates = filterAllowedFields(req.body, ALLOWED_SITE_FIELDS);
+  const updatedSite = updateSite(siteId, filteredUpdates);
   
   res.json({
     success: true,
@@ -366,9 +383,26 @@ app.post('/api/sites/:id/materials', (req: Request, res: Response) => {
     return;
   }
   
-  const material = {
+  // Validate required fields
+  const { name, code, category, unit, availability } = req.body;
+  if (!name || !code || !category || !unit || !availability) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Missing required fields: name, code, category, unit, availability' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  // Filter only allowed fields and add id
+  const filteredMaterial = filterAllowedFields(req.body, ALLOWED_MATERIAL_FIELDS);
+  const material: SiteMaterial = {
     id: `mat-${uuidv4()}`,
-    ...req.body,
+    name,
+    code,
+    category,
+    unit,
+    availability,
+    ...filteredMaterial,
   };
   
   const updatedSite = addMaterialToSite(siteId, material);
@@ -393,7 +427,9 @@ app.patch('/api/sites/:id/materials/:materialId', (req: Request, res: Response) 
     return;
   }
   
-  const updatedSite = updateMaterialInSite(siteId, materialId, req.body);
+  // Filter only allowed fields for update
+  const filteredUpdates = filterAllowedFields(req.body, ALLOWED_MATERIAL_FIELDS);
+  const updatedSite = updateMaterialInSite(siteId, materialId, filteredUpdates);
   
   if (!updatedSite) {
     res.status(404).json({
