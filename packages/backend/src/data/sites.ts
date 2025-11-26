@@ -4,7 +4,7 @@
  */
 
 import type { Site, SiteMaterial, QuarryInfo } from '@sylon/shared';
-import { DEMO_COMPANY, DEMO_GARAGE, DEMO_QUARRY_NORTH, DEMO_QUARRY_SOUTH } from '@sylon/shared';
+import { DEMO_COMPANY, DEMO_GARAGE, DEMO_QUARRY_NORTH, DEMO_QUARRY_SOUTH, DEMO_SNOW_DUMP } from '@sylon/shared';
 
 const now = new Date();
 
@@ -303,12 +303,12 @@ export const snowDump: Site = {
   status: 'seasonal',
   description: 'Kommunens huvudsakliga snötipp. Öppen november-april.',
   address: 'Snödeponivägen 1, 856 50 Sundsvall',
-  coordinates: { latitude: 62.4200, longitude: 17.3100 },
+  coordinates: DEMO_SNOW_DUMP,
   geofence: {
     id: 'gf-snow-dump',
     name: 'Snötipp Norra',
     type: 'circle',
-    center: { latitude: 62.4200, longitude: 17.3100 },
+    center: DEMO_SNOW_DUMP,
     radius: 300,
     alertOnEnter: true,
     alertOnExit: false,

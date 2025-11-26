@@ -71,6 +71,11 @@ export const DEMO_QUARRY_SOUTH: Coordinates = {
   longitude: 17.343468,
 };
 
+export const DEMO_SNOW_DUMP: Coordinates = {
+  latitude: 62.3969,
+  longitude: 17.2350,
+};
+
 export const DEMO_SITES = [
   {
     id: 'site-garage-hq',
@@ -98,6 +103,14 @@ export const DEMO_SITES = [
     coordinates: DEMO_QUARRY_SOUTH,
     address: 'Södra Täktvägen 12, 852 42 Sundsvall',
     materials: ['sand', 'grus', 'makadam'],
+  },
+  {
+    id: 'site-snow-dump',
+    name: 'Snötipp Norra',
+    code: 'SNW-001',
+    type: 'snow_dump' as const,
+    coordinates: DEMO_SNOW_DUMP,
+    address: 'Snödeponivägen 1, 856 50 Sundsvall',
   },
 ];
 

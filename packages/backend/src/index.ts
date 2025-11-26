@@ -315,9 +315,11 @@ app.get('/api/sites/:id', (req: Request, res: Response) => {
 app.get('/api/dashboard', (_req: Request, res: Response) => {
   const positions = getAllPositions();
   
-  const activeResources = allResources.filter(r => 
-    r.status === 'on_job' || r.status === 'en_route'
-  ).length;
+  // Count resources that are actively moving (speed > 0) or have active job status
+  const activeResources = allResources.filter(r => {
+    const position = positions.get(r.id);
+    return (position && (position.speed ?? 0) > 0) || r.status === 'on_job' || r.status === 'en_route';
+  }).length;
   
   const activeJobs = allJobs.filter(j => 
     j.status === 'in_progress' || j.status === 'assigned'
