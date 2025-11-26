@@ -1,0 +1,19 @@
+{
+  "name": "SYLON Field",
+  "short_name": "Field",
+  "description": "Mobile application for SYLON field operators, drivers, and personnel",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "sv"
+}
