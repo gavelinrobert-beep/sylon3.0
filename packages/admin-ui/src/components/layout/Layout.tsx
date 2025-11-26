@@ -26,6 +26,9 @@ interface LayoutProps {
   onModuleChange: (module: string) => void;
 }
 
+// Field App URL - defaults to localhost:5174 for development
+const FIELD_APP_URL = import.meta.env.VITE_FIELD_APP_URL || 'http://localhost:5174';
+
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'works', label: 'Works', icon: Briefcase },
@@ -108,11 +111,11 @@ export const Layout: React.FC<LayoutProps> = ({
 
           <div className="header-actions">
             <a 
-              href="http://localhost:5174" 
+              href={FIELD_APP_URL}
               target="_blank" 
               rel="noopener noreferrer"
               className="header-btn field-app-link"
-              title="Öppna Field App"
+              title="Open Field App"
             >
               <Smartphone size={20} />
               <span className="field-app-text">Field App</span>
