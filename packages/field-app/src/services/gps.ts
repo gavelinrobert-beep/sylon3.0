@@ -24,8 +24,8 @@ const defaultConfig: GpsConfig = {
 
 let watchId: number | null = null;
 let lastPosition: GeoPosition | null = null;
-let positionCallbacks: Set<PositionCallback> = new Set();
-let errorCallbacks: Set<ErrorCallback> = new Set();
+const positionCallbacks: Set<PositionCallback> = new Set();
+const errorCallbacks: Set<ErrorCallback> = new Set();
 let currentResourceId: string | null = null;
 
 // Calculate distance between two positions in meters
