@@ -130,7 +130,7 @@ export const PLOW_ROUTES = [
     id: 'route-plow-3',
     name: 'Industriområdet',
     waypoints: [
-      { lat: 62.4012, lng: 17.2856 },
+      { lat: 62.394734, lng: 17.248521 },
       { lat: 62.4050, lng: 17.2700 },
       { lat: 62.4100, lng: 17.2600 },
       { lat: 62.4080, lng: 17.2500 },
