@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polyline } from 'react-leaflet';
 import L from 'leaflet';
-import { SUNDSVALL_CENTER, RESOURCE_TYPE_LABELS } from '@sylon/shared';
+import { SUNDSVALL_CENTER, RESOURCE_TYPE_LABELS, DEMO_GARAGE, DEMO_QUARRY_NORTH, DEMO_QUARRY_SOUTH, DEMO_SNOW_DUMP } from '@sylon/shared';
 import type { GeoPosition, Resource, ResourceType } from '@sylon/shared';
 import { Badge } from '../ui';
 import 'leaflet/dist/leaflet.css';
@@ -187,7 +187,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
 
         {/* Sites - Garage HQ */}
         <Circle
-          center={[62.4012, 17.2856]}
+          center={[DEMO_GARAGE.latitude, DEMO_GARAGE.longitude]}
           radius={150}
           pathOptions={{ color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.2 }}
         >
@@ -200,7 +200,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
 
         {/* Sites - Quarry North */}
         <Circle
-          center={[62.4523, 17.3421]}
+          center={[DEMO_QUARRY_NORTH.latitude, DEMO_QUARRY_NORTH.longitude]}
           radius={500}
           pathOptions={{ color: '#f59e0b', fillColor: '#fbbf24', fillOpacity: 0.2 }}
         >
@@ -213,7 +213,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
 
         {/* Sites - Quarry South */}
         <Circle
-          center={[62.3345, 17.2789]}
+          center={[DEMO_QUARRY_SOUTH.latitude, DEMO_QUARRY_SOUTH.longitude]}
           radius={400}
           pathOptions={{ color: '#f59e0b', fillColor: '#fbbf24', fillOpacity: 0.2 }}
         >
@@ -221,6 +221,19 @@ export const LiveMap: React.FC<LiveMapProps> = ({
             <strong>Bergtäkt Södra</strong>
             <br />
             Material: Sand, Grus, Makadam
+          </Popup>
+        </Circle>
+
+        {/* Sites - Snow Dump */}
+        <Circle
+          center={[DEMO_SNOW_DUMP.latitude, DEMO_SNOW_DUMP.longitude]}
+          radius={300}
+          pathOptions={{ color: '#06b6d4', fillColor: '#22d3ee', fillOpacity: 0.2 }}
+        >
+          <Popup>
+            <strong>Snötipp Norra</strong>
+            <br />
+            Snödeponi för vinterväghållning
           </Popup>
         </Circle>
       </MapContainer>

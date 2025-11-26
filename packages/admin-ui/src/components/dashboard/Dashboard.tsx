@@ -40,7 +40,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }
 
   const activeResources = resources.filter(r => 
-    r.resource.status === 'on_job' || r.resource.status === 'en_route'
+    (r.position.speed ?? 0) > 0 || r.resource.status === 'on_job' || r.resource.status === 'en_route'
   ).length;
   
   const activeJobs = jobs.filter(j => 
