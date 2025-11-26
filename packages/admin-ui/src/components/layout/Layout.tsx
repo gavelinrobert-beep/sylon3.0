@@ -15,6 +15,8 @@ import {
   X,
   Bell,
   User,
+  Smartphone,
+  ExternalLink,
 } from 'lucide-react';
 import './layout.css';
 
@@ -23,6 +25,9 @@ interface LayoutProps {
   activeModule: string;
   onModuleChange: (module: string) => void;
 }
+
+// Field App URL - defaults to localhost:5174 for development
+const FIELD_APP_URL = import.meta.env.VITE_FIELD_APP_URL || 'http://localhost:5174';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -105,6 +110,17 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
 
           <div className="header-actions">
+            <a 
+              href={FIELD_APP_URL}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="header-btn field-app-link"
+              title="Open Field App"
+            >
+              <Smartphone size={20} />
+              <span className="field-app-text">Field App</span>
+              <ExternalLink size={14} />
+            </a>
             <button className="header-btn">
               <Bell size={20} />
               <span className="notification-badge">3</span>
