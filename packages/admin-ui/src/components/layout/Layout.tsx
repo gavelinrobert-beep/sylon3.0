@@ -15,6 +15,8 @@ import {
   X,
   Bell,
   User,
+  Smartphone,
+  ExternalLink,
 } from 'lucide-react';
 import './layout.css';
 
@@ -105,6 +107,17 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
 
           <div className="header-actions">
+            <a 
+              href="http://localhost:5174" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="header-btn field-app-link"
+              title="Öppna Field App"
+            >
+              <Smartphone size={20} />
+              <span className="field-app-text">Field App</span>
+              <ExternalLink size={14} />
+            </a>
             <button className="header-btn">
               <Bell size={20} />
               <span className="notification-badge">3</span>

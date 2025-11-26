@@ -214,6 +214,21 @@
   font-weight: 500;
 }
 
+.field-app-link {
+  background: linear-gradient(135deg, var(--color-primary), #3b82f6);
+  color: var(--text-inverse) !important;
+  text-decoration: none;
+}
+
+.field-app-link:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: var(--text-inverse) !important;
+}
+
+.field-app-text {
+  font-weight: 500;
+}
+
 /* ============================================
    MAIN CONTENT
    ============================================ */
@@ -264,6 +279,10 @@
   }
 
   .user-name {
+    display: none;
+  }
+
+  .field-app-text {
     display: none;
   }
 }
