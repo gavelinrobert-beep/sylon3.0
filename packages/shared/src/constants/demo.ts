@@ -57,18 +57,18 @@ export const DEMO_COMPANY = {
 // ============================================
 
 export const DEMO_GARAGE: Coordinates = {
-  latitude: 62.4012,
-  longitude: 17.2856,
+  latitude: 62.394734,
+  longitude: 17.248521,
 };
 
 export const DEMO_QUARRY_NORTH: Coordinates = {
-  latitude: 62.4523,
-  longitude: 17.3421,
+  latitude: 62.450615,
+  longitude: 17.222175,
 };
 
 export const DEMO_QUARRY_SOUTH: Coordinates = {
-  latitude: 62.3345,
-  longitude: 17.2789,
+  latitude: 62.319008,
+  longitude: 17.343468,
 };
 
 export const DEMO_SITES = [
