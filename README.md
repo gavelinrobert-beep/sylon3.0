@@ -64,9 +64,11 @@ cd sylon3.0
 # Install dependencies
 npm install
 
-# Build shared package
+# Build shared package (required before running backend or frontend)
 npm run build --workspace=@sylon/shared
 ```
+
+> **Note**: If you update constants or types in the shared package, you must rebuild it with `npm run build --workspace=@sylon/shared` and restart any running services (backend, admin-ui, field-app) to see the changes.
 
 ### Running the Backend
 
