@@ -52,14 +52,14 @@ function createMarkerIcon(type: ResourceType, heading: number = 0): L.DivIcon {
   });
 }
 
-// Map auto-panner component
-function MapController({ center, zoom }: { center: [number, number]; zoom?: number }) {
+// Map controller that only centers when a resource is selected
+function MapController({ center, zoom, shouldCenter }: { center: [number, number]; zoom?: number; shouldCenter: boolean }) {
   const map = useMap();
   useEffect(() => {
-    if (center) {
+    if (shouldCenter && center) {
       map.setView(center, zoom ?? map.getZoom());
     }
-  }, [center, zoom, map]);
+  }, [shouldCenter, center, zoom, map]);
   return null;
 }
 
@@ -84,11 +84,29 @@ export const LiveMap: React.FC<LiveMapProps> = ({
   filterTypes,
 }) => {
   const [trails, setTrails] = useState<Map<string, [number, number][]>>(new Map());
+  const [shouldCenterMap, setShouldCenterMap] = useState(true);
+  const [lastSelectedId, setLastSelectedId] = useState<string | undefined>(undefined);
   
   // Filter resources by type
   const filteredResources = filterTypes
     ? resources.filter(r => filterTypes.includes(r.resource.type))
     : resources;
+  
+  // Track when selectedResourceId changes to trigger centering
+  useEffect(() => {
+    if (selectedResourceId !== lastSelectedId) {
+      setLastSelectedId(selectedResourceId);
+      setShouldCenterMap(true);
+    }
+  }, [selectedResourceId, lastSelectedId]);
+
+  // Reset shouldCenterMap after centering is done
+  useEffect(() => {
+    if (shouldCenterMap) {
+      const timer = setTimeout(() => setShouldCenterMap(false), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldCenterMap]);
   
   // Update trails
   useEffect(() => {
@@ -126,7 +144,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        <MapController center={center} />
+        <MapController center={center} shouldCenter={shouldCenterMap} />
 
         {/* Resource trails */}
         {showTrails && Array.from(trails.entries()).map(([resourceId, trail]) => {
