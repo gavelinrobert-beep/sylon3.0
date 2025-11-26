@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import wsService, { type WebSocketMessage } from '../services/websocket';
-import type { Resource, Job, Site, GeoPosition } from '@sylon/shared';
+import type { Resource, Job, Site, SiteMaterial, GeoPosition } from '@sylon/shared';
 
 // ============================================
 // useApi Hook
@@ -206,24 +206,64 @@ export function useSites(): {
   sites: Site[];
   loading: boolean;
   error: Error | null;
+  updateSite: (siteId: string, updates: Partial<Site>) => Promise<Site>;
+  addMaterial: (siteId: string, material: Partial<SiteMaterial>) => Promise<Site>;
+  updateMaterial: (siteId: string, materialId: string, updates: Partial<SiteMaterial>) => Promise<Site>;
+  deleteMaterial: (siteId: string, materialId: string) => Promise<Site>;
+  refetch: () => Promise<void>;
 } {
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    async function fetchSites() {
-      try {
-        const data = await api.getSites() as Site[];
-        setSites(data);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchSites = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getSites() as Site[];
+      setSites(data);
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
     }
-    fetchSites();
   }, []);
 
-  return { sites, loading, error };
+  useEffect(() => {
+    fetchSites();
+  }, [fetchSites]);
+
+  const updateSite = useCallback(async (siteId: string, updates: Partial<Site>) => {
+    const updatedSite = await api.updateSite(siteId, updates) as Site;
+    setSites(prev => prev.map(site => 
+      site.id === siteId ? updatedSite : site
+    ));
+    return updatedSite;
+  }, []);
+
+  const addMaterial = useCallback(async (siteId: string, material: Partial<SiteMaterial>) => {
+    const updatedSite = await api.addMaterial(siteId, material) as Site;
+    setSites(prev => prev.map(site => 
+      site.id === siteId ? updatedSite : site
+    ));
+    return updatedSite;
+  }, []);
+
+  const updateMaterial = useCallback(async (siteId: string, materialId: string, updates: Partial<SiteMaterial>) => {
+    const updatedSite = await api.updateMaterial(siteId, materialId, updates) as Site;
+    setSites(prev => prev.map(site => 
+      site.id === siteId ? updatedSite : site
+    ));
+    return updatedSite;
+  }, []);
+
+  const deleteMaterial = useCallback(async (siteId: string, materialId: string) => {
+    const updatedSite = await api.deleteMaterial(siteId, materialId) as Site;
+    setSites(prev => prev.map(site => 
+      site.id === siteId ? updatedSite : site
+    ));
+    return updatedSite;
+  }, []);
+
+  return { sites, loading, error, updateSite, addMaterial, updateMaterial, deleteMaterial, refetch: fetchSites };
 }

@@ -13,7 +13,7 @@ import type { ApiResponse, WebSocketEvent, Resource, Job, Site, GeoPosition } fr
 import { DEMO_COMPANY } from '@sylon/shared';
 
 import { allResources, getResourceById, getResourcesByType } from './data/resources.js';
-import { allSites, getSiteById, getSitesByType } from './data/sites.js';
+import { allSites, getSiteById, getSitesByType, updateSite, addMaterialToSite, updateMaterialInSite, deleteMaterialFromSite } from './data/sites.js';
 import { allJobs, getJobById, getJobsByStatus, getJobsByResource } from './data/jobs.js';
 import { initializeSimulation, updateSimulation, getAllPositions, getResourcePosition } from './modules/gps/simulation.js';
 
@@ -333,6 +333,112 @@ app.get('/api/sites/:id', (req: Request, res: Response) => {
   } satisfies ApiResponse<Site>);
 });
 
+app.patch('/api/sites/:id', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  const updatedSite = updateSite(siteId, req.body);
+  
+  res.json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
+// Materials management for sites
+app.post('/api/sites/:id/materials', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  const material = {
+    id: `mat-${uuidv4()}`,
+    ...req.body,
+  };
+  
+  const updatedSite = addMaterialToSite(siteId, material);
+  
+  res.status(201).json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
+app.patch('/api/sites/:id/materials/:materialId', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const materialId = req.params.materialId ?? '';
+  
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  const updatedSite = updateMaterialInSite(siteId, materialId, req.body);
+  
+  if (!updatedSite) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Material not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
+app.delete('/api/sites/:id/materials/:materialId', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const materialId = req.params.materialId ?? '';
+  
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  const updatedSite = deleteMaterialFromSite(siteId, materialId);
+  
+  if (!updatedSite) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Material not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
 // ============================================
 // DASHBOARD ENDPOINTS
 // ============================================
@@ -530,8 +636,55 @@ app.use((_req: Request, res: Response) => {
 });
 
 // ============================================
+// GRACEFUL SHUTDOWN
+// ============================================
+
+function gracefulShutdown(signal: string): void {
+  console.log(`\n${signal} received. Shutting down gracefully...`);
+  
+  // Close WebSocket connections
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.close(1000, 'Server shutting down');
+    }
+  });
+  clients.clear();
+  
+  // Close WebSocket server
+  wss.close(() => {
+    console.log('WebSocket server closed.');
+  });
+  
+  // Close HTTP server
+  server.close(() => {
+    console.log('HTTP server closed.');
+    process.exit(0);
+  });
+  
+  // Force exit after 5 seconds if graceful shutdown fails
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout.');
+    process.exit(1);
+  }, 5000);
+}
+
+// Handle shutdown signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// ============================================
 // START SERVER
 // ============================================
+
+server.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`\n❌ Error: Port ${PORT} is already in use.`);
+    console.error('   Another instance of the server may be running.');
+    console.error('   Please stop the other instance or use a different port.\n');
+    process.exit(1);
+  }
+  throw error;
+});
 
 server.listen(PORT, () => {
   console.log(`

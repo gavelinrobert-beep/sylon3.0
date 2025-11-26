@@ -341,3 +341,75 @@ export function getSiteById(id: string): Site | undefined {
 export function getSitesByType(type: Site['type']): Site[] {
   return allSites.filter(s => s.type === type);
 }
+
+export function updateSite(id: string, updates: Partial<Site>): Site | undefined {
+  const index = allSites.findIndex(s => s.id === id);
+  if (index === -1 || !allSites[index]) {
+    return undefined;
+  }
+  // Get existing site with type assertion since we checked index
+  const existingSite = allSites[index] as Site;
+  
+  // Merge updates preserving required fields
+  Object.assign(existingSite, {
+    ...updates,
+    id: existingSite.id, // Ensure id cannot be changed
+    companyId: existingSite.companyId, // Ensure companyId cannot be changed
+    updatedAt: new Date(),
+    updatedBy: 'api',
+  });
+  
+  return existingSite;
+}
+
+export function addMaterialToSite(siteId: string, material: SiteMaterial): Site | undefined {
+  const site = getSiteById(siteId);
+  if (!site) {
+    return undefined;
+  }
+  if (!site.materials) {
+    site.materials = [];
+  }
+  site.materials.push(material);
+  site.updatedAt = new Date();
+  site.updatedBy = 'api';
+  return site;
+}
+
+export function updateMaterialInSite(siteId: string, materialId: string, updates: Partial<SiteMaterial>): Site | undefined {
+  const site = getSiteById(siteId);
+  if (!site || !site.materials) {
+    return undefined;
+  }
+  const materialIndex = site.materials.findIndex(m => m.id === materialId);
+  if (materialIndex === -1 || !site.materials[materialIndex]) {
+    return undefined;
+  }
+  // Get existing material with type assertion since we checked index
+  const existingMaterial = site.materials[materialIndex] as SiteMaterial;
+  
+  // Merge updates preserving required fields
+  Object.assign(existingMaterial, {
+    ...updates,
+    id: existingMaterial.id, // Ensure id cannot be changed
+  });
+  
+  site.updatedAt = new Date();
+  site.updatedBy = 'api';
+  return site;
+}
+
+export function deleteMaterialFromSite(siteId: string, materialId: string): Site | undefined {
+  const site = getSiteById(siteId);
+  if (!site || !site.materials) {
+    return undefined;
+  }
+  const materialIndex = site.materials.findIndex(m => m.id === materialId);
+  if (materialIndex === -1) {
+    return undefined;
+  }
+  site.materials.splice(materialIndex, 1);
+  site.updatedAt = new Date();
+  site.updatedBy = 'api';
+  return site;
+}

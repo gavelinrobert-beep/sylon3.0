@@ -51,7 +51,7 @@ const App: React.FC = () => {
   
   const { resources, loading: resourcesLoading } = useResources();
   const { jobs, loading: jobsLoading, updateStatus, createJob } = useJobs();
-  const { sites, loading: sitesLoading } = useSites();
+  const { sites, loading: sitesLoading, updateSite, addMaterial, updateMaterial, deleteMaterial } = useSites();
 
   const loading = resourcesLoading || jobsLoading || sitesLoading;
 
@@ -94,7 +94,15 @@ const App: React.FC = () => {
       case 'resources':
         return <ResourcesView resources={resources} />;
       case 'sites':
-        return <SitesView sites={sites} />;
+        return (
+          <SitesView 
+            sites={sites} 
+            onUpdateSite={updateSite}
+            onAddMaterial={addMaterial}
+            onUpdateMaterial={updateMaterial}
+            onDeleteMaterial={deleteMaterial}
+          />
+        );
       case 'garage':
         return <GarageView />;
       default:
