@@ -9,11 +9,11 @@ import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { ApiResponse, WebSocketEvent, Resource, Job, Site, GeoPosition } from '@sylon/shared';
+import type { ApiResponse, WebSocketEvent, Resource, Job, Site, SiteMaterial, GeoPosition } from '@sylon/shared';
 import { DEMO_COMPANY } from '@sylon/shared';
 
 import { allResources, getResourceById, getResourcesByType } from './data/resources.js';
-import { allSites, getSiteById, getSitesByType } from './data/sites.js';
+import { allSites, getSiteById, getSitesByType, updateSite, addMaterialToSite, updateMaterialInSite, deleteMaterialFromSite } from './data/sites.js';
 import { allJobs, getJobById, getJobsByStatus, getJobsByResource } from './data/jobs.js';
 import { initializeSimulation, updateSimulation, getAllPositions, getResourcePosition } from './modules/gps/simulation.js';
 
@@ -333,6 +333,148 @@ app.get('/api/sites/:id', (req: Request, res: Response) => {
   } satisfies ApiResponse<Site>);
 });
 
+// Allowed fields for site updates
+const ALLOWED_SITE_FIELDS = ['name', 'description', 'address', 'status', 'operatingHours', 'contact', 'accessInstructions', 'restrictions'];
+const ALLOWED_MATERIAL_FIELDS = ['name', 'code', 'category', 'fraction', 'description', 'unit', 'pricePerUnit', 'currentStock', 'minStock', 'maxStock', 'availability', 'qualityGrade', 'certifications'];
+
+// Simple validation helper to filter allowed fields
+function filterAllowedFields<T extends Record<string, unknown>>(data: T, allowedFields: string[]): Partial<T> {
+  const filtered: Partial<T> = {};
+  for (const key of allowedFields) {
+    if (key in data) {
+      filtered[key as keyof T] = data[key as keyof T];
+    }
+  }
+  return filtered;
+}
+
+app.patch('/api/sites/:id', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  // Filter only allowed fields for update
+  const filteredUpdates = filterAllowedFields(req.body, ALLOWED_SITE_FIELDS);
+  const updatedSite = updateSite(siteId, filteredUpdates);
+  
+  res.json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
+// Materials management for sites
+app.post('/api/sites/:id/materials', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  // Validate required fields
+  const { name, code, category, unit, availability } = req.body;
+  if (!name || !code || !category || !unit || !availability) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Missing required fields: name, code, category, unit, availability' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  // Filter only allowed fields and add id
+  const filteredMaterial = filterAllowedFields(req.body, ALLOWED_MATERIAL_FIELDS);
+  const material: SiteMaterial = {
+    id: `mat-${uuidv4()}`,
+    name,
+    code,
+    category,
+    unit,
+    availability,
+    ...filteredMaterial,
+  };
+  
+  const updatedSite = addMaterialToSite(siteId, material);
+  
+  res.status(201).json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
+app.patch('/api/sites/:id/materials/:materialId', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const materialId = req.params.materialId ?? '';
+  
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  // Filter only allowed fields for update
+  const filteredUpdates = filterAllowedFields(req.body, ALLOWED_MATERIAL_FIELDS);
+  const updatedSite = updateMaterialInSite(siteId, materialId, filteredUpdates);
+  
+  if (!updatedSite) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Material not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
+app.delete('/api/sites/:id/materials/:materialId', (req: Request, res: Response) => {
+  const siteId = req.params.id ?? '';
+  const materialId = req.params.materialId ?? '';
+  
+  const site = getSiteById(siteId);
+  
+  if (!site) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Site not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  const updatedSite = deleteMaterialFromSite(siteId, materialId);
+  
+  if (!updatedSite) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Material not found' },
+    } satisfies ApiResponse<never>);
+    return;
+  }
+  
+  res.json({
+    success: true,
+    data: updatedSite,
+  } satisfies ApiResponse<Site>);
+});
+
 // ============================================
 // DASHBOARD ENDPOINTS
 // ============================================
@@ -530,8 +672,55 @@ app.use((_req: Request, res: Response) => {
 });
 
 // ============================================
+// GRACEFUL SHUTDOWN
+// ============================================
+
+function gracefulShutdown(signal: string): void {
+  console.log(`\n${signal} received. Shutting down gracefully...`);
+  
+  // Close WebSocket connections
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.close(1000, 'Server shutting down');
+    }
+  });
+  clients.clear();
+  
+  // Close WebSocket server
+  wss.close(() => {
+    console.log('WebSocket server closed.');
+  });
+  
+  // Close HTTP server
+  server.close(() => {
+    console.log('HTTP server closed.');
+    process.exit(0);
+  });
+  
+  // Force exit after 5 seconds if graceful shutdown fails
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout.');
+    process.exit(1);
+  }, 5000);
+}
+
+// Handle shutdown signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// ============================================
 // START SERVER
 // ============================================
+
+server.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`\n❌ Error: Port ${PORT} is already in use.`);
+    console.error('   Another instance of the server may be running.');
+    console.error('   Please stop the other instance or use a different port.\n');
+    process.exit(1);
+  }
+  throw error;
+});
 
 server.listen(PORT, () => {
   console.log(`
