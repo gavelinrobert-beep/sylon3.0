@@ -61,6 +61,29 @@ app.get('/api/info', (_req: Request, res: Response) => {
 // RESOURCES ENDPOINTS
 // ============================================
 
+// Helper function to derive resource status from job assignments
+// Priority: in_progress (on_job) > assigned (en_route) > available
+// If a resource has multiple jobs, the highest priority status is returned
+function getResourceStatusFromJobs(resourceId: string): Resource['status'] {
+  const resourceJobs = getJobsByResource(resourceId);
+  
+  // Check if resource is assigned to any active job (in_progress takes priority)
+  for (const job of resourceJobs) {
+    if (job.status === 'in_progress') {
+      return 'on_job';
+    }
+  }
+  
+  // Then check for assigned jobs
+  for (const job of resourceJobs) {
+    if (job.status === 'assigned') {
+      return 'en_route';
+    }
+  }
+  
+  return 'available';
+}
+
 app.get('/api/resources', (req: Request, res: Response) => {
   let resources = [...allResources];
   
@@ -70,18 +93,19 @@ app.get('/api/resources', (req: Request, res: Response) => {
     resources = resources.filter(r => r.type === type);
   }
   
-  // Filter by status
-  const status = req.query.status as string | undefined;
-  if (status) {
-    resources = resources.filter(r => r.status === status);
-  }
-  
-  // Add current positions from simulation
+  // Add current positions from simulation and update status based on job assignments
   const positions = getAllPositions();
   resources = resources.map(r => ({
     ...r,
     currentPosition: positions.get(r.id) ?? r.currentPosition,
+    status: getResourceStatusFromJobs(r.id),
   }));
+  
+  // Filter by status (after status is derived from jobs)
+  const status = req.query.status as string | undefined;
+  if (status) {
+    resources = resources.filter(r => r.status === status);
+  }
   
   res.json({
     success: true,
@@ -104,11 +128,12 @@ app.get('/api/resources/:id', (req: Request, res: Response) => {
     return;
   }
   
-  // Add current position from simulation
+  // Add current position from simulation and update status based on job assignments
   const position = getResourcePosition(resourceId);
   const resourceWithPosition = {
     ...resource,
     currentPosition: position ?? resource.currentPosition,
+    status: getResourceStatusFromJobs(resourceId),
   };
   
   res.json({
