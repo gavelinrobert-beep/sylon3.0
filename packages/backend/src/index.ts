@@ -62,14 +62,20 @@ app.get('/api/info', (_req: Request, res: Response) => {
 // ============================================
 
 // Helper function to derive resource status from job assignments
+// Priority: in_progress (on_job) > assigned (en_route) > available
+// If a resource has multiple jobs, the highest priority status is returned
 function getResourceStatusFromJobs(resourceId: string): Resource['status'] {
   const resourceJobs = getJobsByResource(resourceId);
   
-  // Check if resource is assigned to any active job
+  // Check if resource is assigned to any active job (in_progress takes priority)
   for (const job of resourceJobs) {
     if (job.status === 'in_progress') {
       return 'on_job';
     }
+  }
+  
+  // Then check for assigned jobs
+  for (const job of resourceJobs) {
     if (job.status === 'assigned') {
       return 'en_route';
     }

@@ -12,6 +12,9 @@ import { Badge } from '../ui';
 import 'leaflet/dist/leaflet.css';
 import './map.css';
 
+// Delay in ms before allowing map to be panned after centering
+const MAP_CENTER_RESET_DELAY_MS = 100;
+
 // Fix Leaflet default icons
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -103,7 +106,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
   // Reset shouldCenterMap after centering is done
   useEffect(() => {
     if (shouldCenterMap) {
-      const timer = setTimeout(() => setShouldCenterMap(false), 100);
+      const timer = setTimeout(() => setShouldCenterMap(false), MAP_CENTER_RESET_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [shouldCenterMap]);
