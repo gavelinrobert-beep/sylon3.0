@@ -580,6 +580,17 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 
 const clients: Set<WebSocket> = new Set();
 
+// Handle WebSocket server errors to prevent unhandled error crashes
+wss.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    // This error is also handled by the HTTP server error handler
+    // Just log it here to prevent unhandled error event
+    console.error('WebSocket server error: Address already in use');
+  } else {
+    console.error('WebSocket server error:', error);
+  }
+});
+
 wss.on('connection', (ws: WebSocket) => {
   console.log('WebSocket client connected');
   clients.add(ws);
