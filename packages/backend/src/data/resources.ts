@@ -86,7 +86,7 @@ export const wheelLoaders: Resource[] = [
     'loader-03',
     'Caterpillar 950M',
     'wheel_loader',
-    'PQR 450',
+    'CAT 950',
     { manufacturer: 'Caterpillar', model: '950M', year: 2023, enginePower: 210, weight: 18500 },
     { maxLoad: 6, unit: 'ton', bucketSize: 3.2 }
   ),
@@ -94,7 +94,7 @@ export const wheelLoaders: Resource[] = [
     'loader-04',
     'Liebherr L556',
     'wheel_loader',
-    'STU 556',
+    'LIE 556',
     { manufacturer: 'Liebherr', model: 'L556', year: 2020, enginePower: 200, weight: 17500 },
     { maxLoad: 5.5, unit: 'ton', bucketSize: 3.0 }
   ),
