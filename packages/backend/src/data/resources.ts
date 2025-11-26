@@ -68,33 +68,33 @@ function createResource(
 export const wheelLoaders: Resource[] = [
   createResource(
     'loader-01',
-    'Loader-01',
+    'Volvo L120H',
     'wheel_loader',
-    'ABC 123',
+    'KLM 235',
     { manufacturer: 'Volvo', model: 'L120H', year: 2022, enginePower: 220, weight: 19500 },
     { maxLoad: 6.5, unit: 'ton', bucketSize: 3.5 }
   ),
   createResource(
     'loader-02',
-    'Loader-02',
+    'Volvo L90H',
     'wheel_loader',
-    'DEF 456',
+    'KLM 190',
     { manufacturer: 'Volvo', model: 'L90H', year: 2021, enginePower: 180, weight: 15000 },
     { maxLoad: 5, unit: 'ton', bucketSize: 2.8 }
   ),
   createResource(
     'loader-03',
-    'Loader-03',
+    'Caterpillar 950M',
     'wheel_loader',
-    'GHI 789',
+    'CAT 950',
     { manufacturer: 'Caterpillar', model: '950M', year: 2023, enginePower: 210, weight: 18500 },
     { maxLoad: 6, unit: 'ton', bucketSize: 3.2 }
   ),
   createResource(
     'loader-04',
-    'Loader-04',
+    'Liebherr L556',
     'wheel_loader',
-    'JKL 012',
+    'LIE 556',
     { manufacturer: 'Liebherr', model: 'L556', year: 2020, enginePower: 200, weight: 17500 },
     { maxLoad: 5.5, unit: 'ton', bucketSize: 3.0 }
   ),
@@ -104,33 +104,33 @@ export const wheelLoaders: Resource[] = [
 export const excavators: Resource[] = [
   createResource(
     'excavator-01',
-    'Excavator-01',
+    'Volvo EC300E',
     'excavator',
-    'MNO 345',
+    'ABC 300',
     { manufacturer: 'Volvo', model: 'EC300E', year: 2022, enginePower: 210, weight: 29500 },
     { maxLoad: 1.8, unit: 'ton', bucketSize: 1.8, armReach: 10.5 }
   ),
   createResource(
     'excavator-02',
-    'Excavator-02',
+    'Hitachi ZX250LC-6',
     'excavator',
-    'PQR 678',
+    'DEF 250',
     { manufacturer: 'Hitachi', model: 'ZX250LC-6', year: 2021, enginePower: 140, weight: 24500 },
     { maxLoad: 1.4, unit: 'ton', bucketSize: 1.4, armReach: 9.8 }
   ),
   createResource(
     'excavator-03',
-    'Excavator-03',
+    'Komatsu PC210LC',
     'excavator',
-    'STU 901',
+    'GHI 210',
     { manufacturer: 'Komatsu', model: 'PC210LC', year: 2023, enginePower: 160, weight: 21500 },
     { maxLoad: 1.2, unit: 'ton', bucketSize: 1.2, armReach: 9.5 }
   ),
   createResource(
     'excavator-04',
-    'Excavator-04',
+    'Caterpillar 320GC',
     'excavator',
-    'VWX 234',
+    'JKL 320',
     { manufacturer: 'Caterpillar', model: '320GC', year: 2020, enginePower: 170, weight: 22500 },
     { maxLoad: 1.5, unit: 'ton', bucketSize: 1.5, armReach: 10.0 }
   ),
@@ -140,33 +140,33 @@ export const excavators: Resource[] = [
 export const plowTrucks: Resource[] = [
   createResource(
     'plow-truck-01',
-    'Plow-Truck-01',
+    'Scania P410',
     'plow_truck',
-    'YZA 567',
+    'MNO 410',
     { manufacturer: 'Scania', model: 'P410', year: 2022, enginePower: 300, weight: 18000 },
     { maxLoad: 12, unit: 'ton' }
   ),
   createResource(
     'plow-truck-02',
-    'Plow-Truck-02',
+    'Volvo FM460',
     'plow_truck',
-    'BCD 890',
+    'PQR 460',
     { manufacturer: 'Volvo', model: 'FM460', year: 2021, enginePower: 340, weight: 19000 },
     { maxLoad: 14, unit: 'ton' }
   ),
   createResource(
     'plow-truck-03',
-    'Plow-Truck-03',
+    'MAN TGS 26.430',
     'plow_truck',
-    'EFG 123',
+    'STU 430',
     { manufacturer: 'MAN', model: 'TGS 26.430', year: 2023, enginePower: 320, weight: 18500 },
     { maxLoad: 13, unit: 'ton' }
   ),
   createResource(
     'plow-truck-04',
-    'Plow-Truck-04',
+    'Mercedes-Benz Arocs 2643',
     'plow_truck',
-    'HIJ 456',
+    'VWX 264',
     { manufacturer: 'Mercedes-Benz', model: 'Arocs 2643', year: 2020, enginePower: 315, weight: 17500 },
     { maxLoad: 12, unit: 'ton' }
   ),
@@ -176,33 +176,33 @@ export const plowTrucks: Resource[] = [
 export const haulTrucks: Resource[] = [
   createResource(
     'haul-truck-01',
-    'Haul-Truck-01',
+    'Scania R580',
     'haul_truck',
-    'KLM 789',
+    'YZA 580',
     { manufacturer: 'Scania', model: 'R580', year: 2022, enginePower: 430, weight: 19000 },
     { maxLoad: 25, unit: 'ton' }
   ),
   createResource(
     'haul-truck-02',
-    'Haul-Truck-02',
+    'Volvo FH540',
     'haul_truck',
-    'NOP 012',
+    'BCD 540',
     { manufacturer: 'Volvo', model: 'FH540', year: 2021, enginePower: 400, weight: 18500 },
     { maxLoad: 24, unit: 'ton' }
   ),
   createResource(
     'haul-truck-03',
-    'Haul-Truck-03',
+    'Scania R520',
     'haul_truck',
-    'QRS 345',
+    'EFG 520',
     { manufacturer: 'Scania', model: 'R520', year: 2023, enginePower: 380, weight: 18000 },
     { maxLoad: 22, unit: 'ton' }
   ),
   createResource(
     'haul-truck-04',
-    'Haul-Truck-04',
+    'MAN TGX 26.560',
     'haul_truck',
-    'TUV 678',
+    'HIJ 560',
     { manufacturer: 'MAN', model: 'TGX 26.560', year: 2020, enginePower: 410, weight: 19500 },
     { maxLoad: 26, unit: 'ton' }
   ),
