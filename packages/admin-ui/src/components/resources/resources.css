@@ -243,6 +243,7 @@
   gap: var(--spacing-sm);
   flex: 1;
   max-width: 120px;
+  position: relative;
 }
 
 .fuel-bar::before {
@@ -258,8 +259,10 @@
 .fuel-fill {
   position: absolute;
   left: 0;
-  top: 0;
-  height: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 8px;
   background: var(--color-success);
   border-radius: 4px;
+  pointer-events: none;
 }
