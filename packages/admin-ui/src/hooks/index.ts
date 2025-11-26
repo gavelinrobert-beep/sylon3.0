@@ -180,13 +180,9 @@ export function useJobs(): {
   }, []);
 
   const createJob = useCallback(async (jobData: Partial<Job>) => {
-    try {
-      const newJob = await api.createJob(jobData) as Job;
-      setJobs(prev => [newJob, ...prev]);
-      return newJob;
-    } catch (err) {
-      throw err;
-    }
+    const newJob = await api.createJob(jobData) as Job;
+    setJobs(prev => [newJob, ...prev]);
+    return newJob;
   }, []);
 
   // WebSocket updates

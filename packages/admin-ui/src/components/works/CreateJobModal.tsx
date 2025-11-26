@@ -55,26 +55,42 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({
     setLoading(true);
 
     try {
-      // Parse dates
-      const scheduledStart = new Date(`${formData.scheduledStartDate}T${formData.scheduledStartTime}`);
+      // Validate and parse dates
+      const scheduledStart = new Date(`${formData.scheduledStartDate}T${formData.scheduledStartTime}:00`);
+      if (isNaN(scheduledStart.getTime())) {
+        throw new Error('Invalid date or time');
+      }
+      
       const estimatedDurationMinutes = parseInt(formData.estimatedDuration, 10);
+      if (isNaN(estimatedDurationMinutes) || estimatedDurationMinutes <= 0) {
+        throw new Error('Invalid duration');
+      }
+      
       const scheduledEnd = new Date(scheduledStart.getTime() + estimatedDurationMinutes * 60000);
 
       // Use site location if selected, otherwise use manual coordinates
       const selectedSite = sites.find(s => s.id === formData.siteId);
-      const location = selectedSite
-        ? {
-            name: selectedSite.name,
-            coordinates: selectedSite.coordinates,
-            siteId: selectedSite.id,
-          }
-        : {
-            name: formData.locationName,
-            coordinates: {
-              latitude: parseFloat(formData.locationLat),
-              longitude: parseFloat(formData.locationLng),
-            },
-          };
+      let location;
+      
+      if (selectedSite) {
+        location = {
+          name: selectedSite.name,
+          coordinates: selectedSite.coordinates,
+          siteId: selectedSite.id,
+        };
+      } else {
+        const latitude = parseFloat(formData.locationLat);
+        const longitude = parseFloat(formData.locationLng);
+        
+        if (isNaN(latitude) || isNaN(longitude)) {
+          throw new Error('Invalid coordinates');
+        }
+        
+        location = {
+          name: formData.locationName,
+          coordinates: { latitude, longitude },
+        };
+      }
 
       const jobData: Partial<Job> = {
         type: formData.type,
@@ -115,7 +131,9 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Failed to create job:', error);
-      alert('Kunde inte skapa uppdrag. Försök igen.');
+      const errorMessage = error instanceof Error ? error.message : 'Ett oväntat fel uppstod';
+      // TODO: Replace with toast notification system
+      alert(`Kunde inte skapa uppdrag: ${errorMessage}. Försök igen.`);
     } finally {
       setLoading(false);
     }
