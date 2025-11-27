@@ -1,0 +1,403 @@
+/**
+ * SYLON Admin UI - Garage Styles
+ */
+
+.garage-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  height: 100%;
+}
+
+.garage-header {
+  margin-bottom: var(--spacing-sm);
+}
+
+.garage-header h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+}
+
+.garage-subtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.garage-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+/* Overview Section */
+.garage-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.garage-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.garage-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 900px) {
+  .garage-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Garage Cards */
+.garage-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Garage List */
+.garage-list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+}
+
+.garage-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.garage-list-item:last-child {
+  border-bottom: none;
+}
+
+.garage-list-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.garage-list-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.garage-list-name {
+  display: block;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.garage-list-type {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.garage-list-meta {
+  flex-shrink: 0;
+}
+
+/* Fuel Indicator (small) */
+.fuel-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.fuel-bar-small {
+  width: 60px;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.fuel-fill-small {
+  height: 100%;
+  border-radius: 3px;
+  transition: width var(--transition-normal);
+}
+
+.fuel-text {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  min-width: 40px;
+  text-align: right;
+}
+
+.fuel-low {
+  color: var(--color-danger);
+}
+
+/* Quick Stats */
+.garage-quick-stats {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  flex-wrap: wrap;
+}
+
+.quick-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+.quick-stat svg {
+  color: var(--color-primary);
+}
+
+.quick-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-stat-value {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.quick-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* Section Header */
+.garage-section-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.garage-section-header h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.garage-section-header p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* Service View */
+.garage-service-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.garage-service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Service Card */
+.service-card {
+  padding: var(--spacing-md);
+}
+
+.service-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.service-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.service-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-card-info h4 {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-card-type {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.service-card-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.service-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.service-detail .detail-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.service-detail .detail-value {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.text-danger {
+  color: var(--color-danger) !important;
+}
+
+.text-warning {
+  color: var(--color-warning) !important;
+}
+
+/* Fuel View */
+.garage-fuel-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.fuel-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  max-width: 500px;
+}
+
+.garage-fuel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Fuel Card */
+.fuel-card {
+  padding: var(--spacing-md);
+}
+
+.fuel-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.fuel-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.fuel-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fuel-card-info h4 {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fuel-card-reg {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Fuel Gauge */
+.fuel-card-gauge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.fuel-gauge-bar {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.fuel-gauge-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width var(--transition-normal);
+}
+
+.fuel-gauge-text {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  min-width: 50px;
+  text-align: right;
+}
+
+.fuel-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.fuel-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fuel-detail .detail-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.fuel-detail .detail-value {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
