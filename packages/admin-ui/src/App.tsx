@@ -8,43 +8,10 @@ import { Dashboard } from './components/dashboard/Dashboard';
 import { ResourcesView } from './components/resources/ResourcesView';
 import { WorksView } from './components/works/WorksView';
 import { SitesView } from './components/sites/SitesView';
+import { GarageView } from './components/garage/GarageView';
 import { useResources, useJobs, useSites } from './hooks';
 import { Spinner } from './components/ui';
 import './styles/globals.css';
-
-const GarageView: React.FC = () => (
-  <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-    <h2 style={{ marginBottom: '1.5rem' }}>Garage</h2>
-    <div style={{ 
-      backgroundColor: 'var(--bg-secondary)', 
-      padding: '1.5rem', 
-      borderRadius: '8px',
-      marginBottom: '1rem'
-    }}>
-      <p style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
-        <strong>Kommande funktionalitet:</strong>
-      </p>
-      <ul style={{ 
-        listStyle: 'disc', 
-        paddingLeft: '1.5rem', 
-        color: 'var(--text-secondary)',
-        lineHeight: '1.8'
-      }}>
-        <li>Fordonsservice och underhållsschema</li>
-        <li>Dagliga kontroller och checklistor</li>
-        <li>Bränsle- och kostnadsuppföljning</li>
-        <li>Reservdelshantering och lager</li>
-        <li>Parkeringsöversikt och resurslokalisering vid depå</li>
-        <li>Historik över service och reparationer</li>
-        <li>Integrering med fordonsdata och diagnostik</li>
-      </ul>
-    </div>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '1rem' }}>
-      Garage HQ-platsen finns redan registrerad under "Platser"-modulen och används för 
-      resurspositionering i GPS-simuleringen.
-    </p>
-  </div>
-);
 
 const App: React.FC = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
@@ -104,7 +71,7 @@ const App: React.FC = () => {
           />
         );
       case 'garage':
-        return <GarageView />;
+        return <GarageView resources={resources} />;
       default:
         return (
           <Dashboard 
