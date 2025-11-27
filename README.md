@@ -325,9 +325,10 @@ The backend can be deployed to Render.com using the included `render.yaml` bluep
 Alternatively, deploy manually:
 1. Create a new "Web Service" on Render
 2. Connect your repository
-3. Set build command: `npm install && npm run build`
-4. Set start command: `npm run start --workspace=@sylon/backend`
-5. Add environment variables:
+3. Set root directory: `packages/backend`
+4. Set build command: `cd ../.. && npm install && npm run build`
+5. Set start command: `node dist/index.js`
+6. Add environment variables:
    - `NODE_ENV=production`
    - `PORT=3001`
 
