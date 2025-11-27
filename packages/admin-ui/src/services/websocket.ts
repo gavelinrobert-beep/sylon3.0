@@ -94,6 +94,6 @@ class WebSocketService {
   }
 }
 
-export const wsService = new WebSocketService('ws://localhost:3001/ws');
+export const wsService = new WebSocketService(import.meta.env.VITE_WS_URL || 'ws://localhost:3001/ws');
 
 export default wsService;

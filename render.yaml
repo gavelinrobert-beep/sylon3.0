@@ -1,0 +1,19 @@
+# Render Blueprint for SYLON Backend
+# Deploy with: https://render.com/deploy
+
+services:
+  - type: web
+    name: sylon-backend
+    env: node
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: packages/backend
+    buildCommand: cd ../.. && npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
