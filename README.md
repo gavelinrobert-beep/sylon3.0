@@ -300,6 +300,53 @@ The project uses TypeScript strict mode with:
 - `strictNullChecks`
 - `noUncheckedIndexedAccess`
 
+## 🚀 Deployment
+
+### GitHub Pages (Frontend)
+
+The Admin UI and Field App are automatically deployed to GitHub Pages when you push to the `main` branch. The deployment workflow is located at `.github/workflows/deploy.yml`.
+
+After pushing to `main`, your apps will be available at:
+- **Landing Page**: `https://<username>.github.io/sylon3.0/`
+- **Admin UI**: `https://<username>.github.io/sylon3.0/admin/`
+- **Field App**: `https://<username>.github.io/sylon3.0/field/`
+
+> **Note**: Make sure GitHub Pages is enabled in your repository settings (Settings → Pages → Source: GitHub Actions).
+
+### Backend Deployment (Render)
+
+The backend can be deployed to Render.com using the included `render.yaml` blueprint:
+
+1. Go to [render.com](https://render.com) and sign up/log in
+2. Click "New" → "Blueprint"
+3. Connect your GitHub repository
+4. Render will automatically detect the `render.yaml` and deploy the backend
+
+Alternatively, deploy manually:
+1. Create a new "Web Service" on Render
+2. Connect your repository
+3. Set build command: `npm install && npm run build`
+4. Set start command: `npm run start --workspace=@sylon/backend`
+5. Add environment variables:
+   - `NODE_ENV=production`
+   - `PORT=3001`
+
+### Connecting Frontend to Backend
+
+After deploying the backend, update the frontend environment variables in your GitHub repository settings (Settings → Secrets and variables → Actions → Variables):
+
+- `VITE_API_URL`: Your Render backend URL + `/api` (e.g., `https://sylon-backend.onrender.com/api`)
+- `VITE_WS_URL`: Your Render backend WebSocket URL (e.g., `wss://sylon-backend.onrender.com/ws`)
+
+### Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `https://sylon-backend.onrender.com/api` |
+| `VITE_WS_URL` | WebSocket URL | `wss://sylon-backend.onrender.com/ws` |
+| `PORT` | Backend port | `3001` |
+| `NODE_ENV` | Environment | `production` |
+
 ## 📄 License
 
 MIT
